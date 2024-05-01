@@ -1,0 +1,22 @@
+[
+    {
+        "name": "John Doe",
+        "title": "CEO 2",
+        "email": "john.doe@example.com",
+        "phone_number": "",
+        "department_name": "Dairy",
+        "depth": 0,
+        "employee_id": "dnsajdana",
+        "manager_id": "root"
+    },
+    {
+        "name": "John Doeymoe",
+        "title": "CEO",
+        "email": "john.doe@example.com",
+        "phone_number": "",
+        "department_name": "Dairy",
+        "depth": 0,
+        "employee_id": "dnsajdna",
+        "manager_id": "root"
+    }
+]
