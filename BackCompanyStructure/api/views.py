@@ -20,10 +20,10 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EmployeeSerializer
 
     def get_object(self):
-        """Retrieve an employee from JSON file based on the employee_id from URL."""
-        employee_id = self.kwargs.get('pk')
+        """Retrieve an employee from JSON file based on the employeeId from URL."""
+        employeeId = self.kwargs.get('pk')
         data = read_data_from_json()
-        employee = next((item for item in data if item['employee_id'] == employee_id), None)
+        employee = next((item for item in data if item['employeeId'] == employeeId), None)
         if employee is None:
             raise Http404("No Employee matches the given query.")
         return employee
@@ -32,7 +32,7 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
         instance = self.get_object()  # Fetch the current instance
         data = read_data_from_json()
         for index, item in enumerate(data):
-            if item['employee_id'] == instance['employee_id']:
+            if item['employeeId'] == instance['employeeId']:
                 data[index] = serializer.validated_data  # Update with validated data
                 write_data_to_json(data)
                 return Response(serializer.validated_data, status=status.HTTP_200_OK)
@@ -40,8 +40,8 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         data = read_data_from_json()
-        employee_id = instance['employee_id']  # Use the 'employee_id' from the instance
-        new_data = [item for item in data if item['employee_id'] != employee_id]
+        employeeId = instance['employeeId']  # Use the 'employeeId' from the instance
+        new_data = [item for item in data if item['employeeId'] != employeeId]
         if len(data) == len(new_data):
             return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
         write_data_to_json(new_data)

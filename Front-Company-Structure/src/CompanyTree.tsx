@@ -3,6 +3,7 @@ import { Tree } from 'react-d3-tree';
 import AddEmployeeForm from './AddEmployeeForm';
 import { Employee } from './Employee';
 import './App.css';
+import { addEmployee, deleteEmployee, fetchEmployees, updateEmployee,  } from './backendTalk';
 
 const emptyEmployee: Employee = {
   employeeId: '',
@@ -17,31 +18,48 @@ export const CompanyTree = () => {
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [treeData, setTreeData] = useState<any>({ name: 'Company Tree', children: [] }); // Initialize tree data
-  
-    const onSubmit = (employee: Employee, managerId: string) => {
-        const existingEmployeeIndex = employees.findIndex(emp => emp.employeeId === employee.employeeId);
 
+    useEffect(() => {
+        const init = async () => {
+            const employees = await fetchEmployees();
+            setEmployees(employees);
+        };
+        init();
+    }, []);
+  
+    const onSubmit = async (employee: Employee, managerId: string) => {
+        // Check if the employee already exists
+        const existingEmployeeIndex = employees.findIndex(emp => emp.employeeId === employee.employeeId);
+    
         if (existingEmployeeIndex !== -1) {
             // Employee already exists, update the existing one
-            const updatedEmployees = [...employees];
-            updatedEmployees[existingEmployeeIndex] = { ...employee, managerId }; // Update employee with new data and managerId
-            setEmployees(updatedEmployees);
-        } else {
-            // Generate employee ID only if it's empty
-            const employeeWithId = { ...employee };
-            if (employeeWithId.employeeId === '') {
-                employeeWithId.employeeId = generateEmployeeId();
+            try {
+                const updatedEmployee = await updateEmployee(employee.employeeId, { ...employee, managerId });
+                const updatedEmployees = [...employees];
+                updatedEmployees[existingEmployeeIndex] = updatedEmployee;
+                setEmployees(updatedEmployees);
+            } catch (error) {
+                console.error('Error updating employee:', error);
+                // Optionally, handle the error in the UI
             }
-            
-            // Set the managerId for the new employee
-            employeeWithId.managerId = managerId;
-            
-            // Update employees state with the new employee
-            setEmployees(prevEmployees => [...prevEmployees, employeeWithId]);
+        } else {
+            // This is a new employee, add them
+            try {
+                if (employee.employeeId === '') {
+                    // Optionally generate an ID if required; otherwise, the backend should ideally handle it
+                    employee.employeeId = generateEmployeeId();
+                }
+                employee.managerId = managerId;
+    
+                const newEmployee = await addEmployee(employee);
+                setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
+            } catch (error) {
+                console.error('Error adding new employee:', error);
+                // Optionally, handle the error in the UI
+            }
         }
-
+    
         setShowForm(false); // Close the form after submission
-
     };
 
     const onClose = () => {
@@ -49,18 +67,25 @@ export const CompanyTree = () => {
       setShowForm(false);
     };
   
-    const onDelete = () => {
-
-      if (!selectedEmployee) return;
-
-      // Remove the selected employee from the employees state
-      setEmployees(prevEmployees => prevEmployees.filter(emp => emp.employeeId !== selectedEmployee.employeeId));
-      setShowForm(false); // Close the form after deletion
-      
+    const onDelete = async () => {
+        if (!selectedEmployee) return;
+    
+        try {
+            // First try to delete the employee from the backend
+            await deleteEmployee(selectedEmployee.employeeId);
+    
+            // If the deletion is successful, then remove the employee from the state
+            setEmployees(prevEmployees => prevEmployees.filter(emp => emp.employeeId !== selectedEmployee.employeeId));
+    
+            // Close the form after deletion
+            setShowForm(false);
+        } catch (error) {
+            console.error('Failed to delete employee:', error);
+        }
     };
 
     const generateEmployeeId = (): string => {
-        // Generate a random ID (for simplicity, you can use a library like uuid for a more robust solution)
+        // Generate a random employee ID
         return Math.random().toString(36).substr(2, 9);
     };
   
@@ -153,6 +178,7 @@ export const CompanyTree = () => {
 
         // Update tree data whenever employees change
         setTreeData(generateTreeData());
+        
     }, [employees]);
 
 
