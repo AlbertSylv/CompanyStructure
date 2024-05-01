@@ -16,6 +16,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ employee, onSubmit, o
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setEmployeeData({ ...employeeData, [name]: value });
+    
         if (name === 'email') {
             if (value && !isValidEmail(value)) {
                 setError('Please enter a valid email address.');
@@ -23,17 +24,35 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ employee, onSubmit, o
                 setError('');
             }
         }
+    
+        if (name === 'phoneNumber') {
+            if (value && !isValidPhoneNumber(value)) {
+                setError('Please enter a valid phone number.');
+            } else {
+                setError('');
+            }
+        }
     };
+    
 
     const isValidEmail = (email: string) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     };
 
+    const isValidPhoneNumber = (phoneNumber: string) => {
+        const re = /^\+?([0-9]{1,3})?[-. (]?([0-9]{1,4})?[-. )]?([0-9]{1,4})?[-. ]?([0-9]{1,4})?[-. ]?([0-9]{1,9})?$/;
+        return re.test(phoneNumber);
+    };
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!isValidEmail(employeeData.email)) {
             setError('Please enter a valid email address.');
+            return;
+        }
+        if (!isValidPhoneNumber(employeeData.phoneNumber || '')) {
+            setError('Please enter a valid phone number.');
             return;
         }
         if (error) {
@@ -70,7 +89,9 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ employee, onSubmit, o
                 </label>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button style={{ marginRight: "10px" }} type="submit">Save Changes</button>
-                <button style={{ marginLeft: "10px" }} type="button" onClick={onDelete}>Delete</button>
+                {employee.employeeId &&
+                    <button style={{ marginLeft: "10px" }} type="button" onClick={onDelete}>Delete</button>
+                }
             </form>
         </div>
     );
