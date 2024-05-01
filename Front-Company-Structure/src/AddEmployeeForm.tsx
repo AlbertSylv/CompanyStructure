@@ -3,61 +3,77 @@ import { Employee } from './Employee';
 import './App.css';
 
 interface AddEmployeeFormProps {
-    employee: Employee; 
-    onSubmit: (employee: Employee) => void;
-    onClose: () => void; 
-    onDelete: () => void; 
-  }
+    employee: Employee;
+    onSubmit: (employee: Employee, managerId: string) => void;
+    onClose: () => void;
+    onDelete: () => void;
+}
 
-  
 const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ employee, onSubmit, onClose, onDelete }) => {
     const [employeeData, setEmployeeData] = useState<Employee>(employee);
-  
+    const [error, setError] = useState<string>('');
+
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setEmployeeData({ ...employeeData, [name]: value });
+        const { name, value } = e.target;
+        setEmployeeData({ ...employeeData, [name]: value });
+        if (name === 'email') {
+            if (value && !isValidEmail(value)) {
+                setError('Please enter a valid email address.');
+            } else {
+                setError('');
+            }
+        }
     };
-  
+
+    const isValidEmail = (email: string) => {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    };
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      onSubmit(employeeData);
-      //setEmployeeData(employee); // Reset form fields after submission
+        e.preventDefault();
+        if (!isValidEmail(employeeData.email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+        if (error) {
+            alert("Please fix the errors before submitting.");
+            return;
+        }
+        onSubmit(employeeData, employeeData.managerId || '');
     };
-  
+
     return (
         <div className="add-employee-form">
             <button className="close-button" onClick={onClose}>X</button>
-            <h2>Add/Edit Employee</h2>
+            <h2>{employee ? 'Edit Employee' : 'Add Employee'}</h2>
             <form onSubmit={handleSubmit}>
                 <label>
-                Employee ID
-                <input type="text" name="employeeId" value={employeeData?.employeeId || ''} onChange={handleChange} />
+                    Name
+                    <input type="text" name="name" value={employeeData.name || ''} onChange={handleChange} required />
                 </label>
                 <label>
-                Name
-                <input type="text" name="name" value={employeeData?.name || ''} onChange={handleChange} />
+                    Title
+                    <input type="text" name="title" value={employeeData.title || ''} onChange={handleChange} required />
                 </label>
                 <label>
-                Title
-                <input type="text" name="title" value={employeeData?.title || ''} onChange={handleChange} />
+                    Department Name
+                    <input type="text" name="departmentName" value={employeeData.departmentName || ''} onChange={handleChange} />
                 </label>
                 <label>
-                Department Name
-                <input type="text" name="departmentName" value={employeeData?.departmentName || ''} onChange={handleChange} />
+                    Phone Number
+                    <input type="text" name="phoneNumber" value={employeeData.phoneNumber || ''} onChange={handleChange} />
                 </label>
                 <label>
-                Phone Number
-                <input type="text" name="phoneNumber" value={employeeData?.phoneNumber || ''} onChange={handleChange} />
+                    Email
+                    <input type="email" name="email" value={employeeData.email || ''} onChange={handleChange} required />
                 </label>
-                <label>
-                Email
-                <input type="email" name="email" value={employeeData?.email || ''} onChange={handleChange} />
-                </label>
-                <button style={{ marginRight: "10px" }} type="submit">{employee ? 'Save Changes' : 'Add Employee'}</button>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                <button style={{ marginRight: "10px" }} type="submit">Save Changes</button>
                 <button style={{ marginLeft: "10px" }} type="button" onClick={onDelete}>Delete</button>
             </form>
         </div>
     );
 };
-  
+
 export default AddEmployeeForm;

@@ -98,3 +98,25 @@
 .add-employee-form button.close-button:hover {
   color: #333;
 }
+
+.node__root > circle {
+  fill: rgb(255, 255, 255);
+  r: 18;
+}
+
+.node__branch > circle {
+  fill: rgb(255, 255, 255);
+}
+
+.node__leaf > circle {
+  fill: rgb(255, 255, 255);
+  stroke-width: 1;
+  stroke-dasharray: 2,1;
+}
+
+.rd3t-label {
+  transform: translateX(-18px) translateY(4px);
+  cursor: default;
+  font-size: 12px!important;
+}
+
