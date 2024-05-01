@@ -100,7 +100,7 @@
 }
 
 .node__root > circle {
-  fill: rgb(255, 255, 255);
+  fill: rgb(0, 0, 0);
   r: 18;
 }
 

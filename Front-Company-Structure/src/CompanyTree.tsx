@@ -148,13 +148,14 @@ export const CompanyTree = () => {
             
                     // Push the employee node along with its children nodes
                     nodes.push({
-                        name: emp.name,
                         
+                        name: emp.title,
                         attributes: {
-                            Title: emp.title,
+                            
                             
                         },
                         internalData: {
+                            name: emp.name,
                             employeeId: emp.employeeId,
                             depth: emp.depth,
                         },
